@@ -12,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Newtonsoft.Json.Linq;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace Protobuf2Fiddler
@@ -27,12 +26,6 @@ namespace Protobuf2Fiddler
             InitializeComponent();
         }
 
-        public void SetJson(string json)
-        {
-            var jobj = JObject.Parse(json);
-            treeView.ItemsSource = jobj.Children().Select(JsonHeaderLogic.FromJToken);
-        }
-
         public void SetProtocOutput(string data)
         {
             treeView.ItemsSource = ProtocOutput.Parse(data);
@@ -40,7 +33,7 @@ namespace Protobuf2Fiddler
 
         public void Clean()
         {
-            treeView.Items.Clear();
+            treeView.ItemsSource = null;
         }
 
         internal void Search(string p)

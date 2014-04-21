@@ -90,6 +90,7 @@ namespace Protobuf2Fiddler
         {
             base.AssignSession(oS);
             Session = oS;
+            this.Clear();
             _view.SetSession(oS);
             try
             {
@@ -112,11 +113,6 @@ namespace Protobuf2Fiddler
         public override int GetOrder()
         {
             return 0;
-        }
-
-        public void Clear()
-        {
-            _view.CleanView();
         }
 
         public bool bDirty
@@ -158,6 +154,11 @@ namespace Protobuf2Fiddler
         internal void UpdateView(string jsonData)
         {
             _view.UpdateView(jsonData);
+        }
+
+        public virtual void Clear()
+        {
+            _view.CleanView();
         }
     }
 }

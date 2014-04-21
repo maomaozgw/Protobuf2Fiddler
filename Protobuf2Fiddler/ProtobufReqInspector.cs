@@ -35,21 +35,21 @@ namespace Protobuf2Fiddler
         {
             if (this._headers != null)
             {
-                this._encoding = Utilities.getEntityBodyEncoding(_headers, oS.ResponseBody);
+                this._encoding = Utilities.getEntityBodyEncoding(_headers, oS.RequestBody);
             }
             else
             {
                 _encoding = CONFIG.oHeaderEncoding;
             }
-            if (!Utilities.IsNullOrEmpty(oS.ResponseBody))
+            if (!Utilities.IsNullOrEmpty(oS.RequestBody))
             {
                 string boundary = Utilities.GetCommaTokenValue(_headers["Content-Type"], "boundary");
-                string bodyString = this._encoding.GetString(oS.requestBodyBytes).Trim();
+                string bodyString = _encoding.GetString(oS.RequestBody).Trim();
                 if (!string.IsNullOrWhiteSpace(boundary) && !string.IsNullOrWhiteSpace(bodyString))
                 {
                     var binData = GetRequestData(bodyString, boundary);
                     var protocData = ProtobufHelper.Decode(oS.oRequest.headers.RequestPath, true, binData);
-                    this.UpdateView(protocData);
+                    UpdateView(protocData);
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace Protobuf2Fiddler
                 string txtData = data.Trim();
                 if (!txtData.Equals("--"))
                 {
-                    int num = txtData.IndexOf("\r\n\r\n");
+                    int num = txtData.IndexOf("\r\n\r\n", StringComparison.Ordinal);
                     if (num > 0)
                     {
                         string header = txtData.Substring(0, num);
@@ -77,6 +77,5 @@ namespace Protobuf2Fiddler
             }
             return new byte[] { };
         }
-
     }
 }
