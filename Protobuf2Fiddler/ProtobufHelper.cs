@@ -12,174 +12,73 @@ namespace Protobuf2Fiddler
 {
     public class ProtobufHelper
     {
-        private const string AssemblyPathTemplate = "Protos_{0}.dll";
-
-        private static string AssemblyPath;
-
-        public static bool TryLoadDefault()
+        public static bool LoadDefault()
         {
-            var files = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Protos_*.dll", SearchOption.TopDirectoryOnly);
-            if (files != null && files.Length > 0)
-            {
-                AssemblyPath = files[0];
-                return true;
-            }
-            files = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "*.tmp", SearchOption.TopDirectoryOnly);
-            try
-            {
-                foreach (var file in files)
-                {
-                    File.Delete(file);
-                }
-            }
-            catch
-            {
-
-            }
-            return false;
+            LoadMap();
+            return LoadDirectory(ProtocolMap.ProtoDirectory);
         }
 
-        public static bool ReloadAll(string directory)
+        public static bool LoadDirectory(string directory)
         {
-            if (!Directory.Exists(directory))
+            if (!Directory.Exists(directory)) return false;
+            var fileList = Directory.GetFiles(directory, "*.proto", SearchOption.TopDirectoryOnly);
+            foreach (var file in fileList)
             {
-                return false;
-            }
-            string oldPath = Environment.CurrentDirectory;
-            if (!oldPath.Equals(Assembly.GetExecutingAssembly().Location))
-            {
-                Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            }
-            _protoAssembly = null;
-            _protoItems = null;
-            try
-            {
-                if (AssemblyPath != null)
+                var fileDesc = ProtoTransformer.LoadFilesAsFileDescription(file);
+                var types =
+                    fileDesc.file.SelectMany(
+                        f => f.message_type.Select(p => string.Format("{0}.{1}", f.package, p.name)));
+                if (!ProtoItems.ContainsKey(file))
                 {
-                    if (File.Exists(AssemblyPath))
-                    {
-                        File.Move(AssemblyPath, Path.ChangeExtension(AssemblyPath, "tmp"));
-                    }
+                    ProtoItems.Add(file, types.ToList());
                 }
-                AssemblyPath = Path.GetFullPath(string.Format(AssemblyPathTemplate, DateTime.Now.Ticks));
-                var files = Directory.GetFiles(directory, "*.proto", SearchOption.AllDirectories);
-                return ProtoTransformer.Transform(files.ToList(), AssemblyPath);
             }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                Environment.CurrentDirectory = oldPath;
-            }
+            ProtocolMap.ProtoDirectory = directory;
+            _protoTypes = null;
+            return true;
         }
 
-        private static Assembly _protoAssembly = null;
+        public static Dictionary<string, List<string>> ProtoItems = new Dictionary<string, List<string>>();
 
-        private static Assembly ProtoAssembly
+        private static List<string> _protoTypes = null;
+
+        public static List<string> ProtoTypes
         {
             get
             {
-                if (_protoAssembly == null)
+                if (_protoTypes == null)
                 {
-                    if (File.Exists(AssemblyPath))
-                    {
-                        _protoAssembly = Assembly.LoadFile(AssemblyPath);
-                    }
+                    _protoTypes = ProtoItems.SelectMany(i => i.Value).ToList();
                 }
-                return _protoAssembly;
+                return _protoTypes;
             }
         }
 
-        public static Dictionary<string, string> _protoItems = null;
-
-        public static Dictionary<string, string> ProtoItems
-        {
-            get
-            {
-                if (_protoItems == null)
-                {
-                    lock (SyncRoot)
-                    {
-                        if (_protoItems == null)
-                        {
-                            if (ProtoAssembly != null)
-                            {
-                                var alltypes = ProtoAssembly.GetTypes();
-                                _protoItems = alltypes.Where(t => t.IsDefined(typeof(ProtoBuf.ProtoContractAttribute), false)).ToDictionary<Type, string, string>(t => t.Name, t => t.FullName);
-                            }
-                        }
-                    }
-                }
-                return _protoItems;
-            }
-        }
-
-        public static ProtobufMsg ConvertToMsgMap(string url, bool isReq, byte[] data)
+        public static string Decode(string url, bool isReq, byte[] data)
         {
             var map = ProtocolMap.Maps.FirstOrDefault(item => item.URL.Equals(url));
-            if (map == null) return null;
-            var protoItem = isReq ? map.Request : map.Response;
-            if (protoItem == null) return null;
-            var type = ProtoAssembly.GetType(protoItem.ProtoFullName, false, true);
-            if (type == null) return null;
-
-            using (MemoryStream stream = new MemoryStream(data))
+            var retVal = string.Empty;
+            if (map != null)
             {
-                var item = ProtoBuf.Serializer.NonGeneric.Deserialize(type, stream);
-                return DumpFromObject(item);
-            }
-        }
-
-        public static ProtobufMsg DumpFromObject(object obj)
-        {
-            ProtobufMsg retVal = new ProtobufMsg()
-            {
-                SubMessages = new List<ProtobufMsg>()
-            };
-            var type = obj.GetType();
-            var properties = type.GetProperties();
-            retVal.Name = type.Name;
-            foreach (var property in properties)
-            {
-                if (property.IsDefined(typeof(ProtoBuf.ProtoMemberAttribute), false))
+                var protoItem = isReq ? map.Request : map.Response;
+                if (protoItem != null)
                 {
-                    if (property.PropertyType.IsDefined(typeof(ProtoBuf.ProtoContractAttribute), false))
+                    try
                     {
-                        var val = property.GetValue(obj, null);
-                        if (val == null)
-                        {
-                            var item = new ProtobufMsg()
-                            {
-                                Name = property.Name,
-                                Value = "NULL"
-                            };
-                            retVal.SubMessages.Add(item);
-                        }
-                        else
-                        {
-                            var item = DumpFromObject(property.GetValue(obj, null));
-                            item.Name = property.Name;
-                            retVal.SubMessages.Add(item);
-                        }
-
+                        retVal = ProtoTransformer.DecodeWithProtoFile(data, protoItem.ProtoFile, protoItem.MessageType);
                     }
-                    else
+                    catch
                     {
-                        var item = new ProtobufMsg()
-                        {
-                            Name = property.Name,
-                            Value = property.GetValue(obj, null).ToString()
-                        };
-                        retVal.SubMessages.Add(item);
+                        retVal = string.Empty;
                     }
                 }
+            }
+            if (string.IsNullOrEmpty(retVal))
+            {
+                retVal = ProtoTransformer.DecodeRaw(data);
             }
             return retVal;
         }
-
-        private static object SyncRoot = new object();
 
         private static ProtocolMap _protocolMap = null;
 
@@ -189,13 +88,7 @@ namespace Protobuf2Fiddler
             {
                 if (_protocolMap == null)
                 {
-                    lock (SyncRoot)
-                    {
-                        if (_protocolMap == null)
-                        {
-                            LoadMap();
-                        }
-                    }
+                    LoadMap();
                 }
                 return _protocolMap;
             }
@@ -258,33 +151,6 @@ namespace Protobuf2Fiddler
             {
                 Environment.CurrentDirectory = oldPath;
             }
-        }
-    }
-
-    [DataContract]
-    public class ProtobufMsg
-    {
-        [DataMember]
-        public string Name { get; set; }
-
-        [DataMember(IsRequired = false)]
-        public string Value { get; set; }
-
-        [DataMember(IsRequired = false)]
-        public List<ProtobufMsg> SubMessages { get; set; }
-
-        public override string ToString()
-        {
-            if (SubMessages == null)
-            {
-                return string.Format("{{ {0}:{1} }}", Name, Value);
-            }
-            StringBuilder builder = new StringBuilder();
-            foreach (var msg in SubMessages)
-            {
-                builder.AppendLine(msg.ToString());
-            }
-            return string.Format("{{ {0}{1}    {2} }}", Environment.NewLine, Name, builder.ToString());
         }
     }
 }

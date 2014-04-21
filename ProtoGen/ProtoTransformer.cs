@@ -76,11 +76,11 @@ namespace ProtoBuf.CodeGenerator
             return sb.ToString();
         }
 
-        public static FileDescriptorSet LoadFilesAsFileDescription(List<string> fileList)
+        public static FileDescriptorSet LoadFilesAsFileDescription(params string[] files)
         {
             FileDescriptorSet set = new FileDescriptorSet();
 
-            foreach (string inPath in fileList)
+            foreach (string inPath in files)
             {
                 InputFileLoader.Merge(set, inPath, Console.Error);
             }
@@ -153,7 +153,6 @@ namespace ProtoBuf.CodeGenerator
             procStartInfo.RedirectStandardError = true;
             procStartInfo.RedirectStandardOutput = true;
             procStartInfo.UseShellExecute = false;
-
             System.Diagnostics.Process proc = System.Diagnostics.Process.Start(procStartInfo);
             Debug.WriteLine(procStartInfo.Arguments);
             // proc.StandardInput.BaseStream.Write(protobufBytes, 0, protobufBytes.Length);
@@ -168,11 +167,14 @@ namespace ProtoBuf.CodeGenerator
 
         private static ProcessStartInfo GetProtocStartInfo()
         {
-            string workingDirectory = string.Empty;
+            string workingDirectory;
             string protoFile = InputFileLoader.GetProtocPath(out workingDirectory);
-            ProcessStartInfo procStartInfo = new ProcessStartInfo();
-            procStartInfo.WorkingDirectory = workingDirectory;
-            procStartInfo.FileName = protoFile;
+            ProcessStartInfo procStartInfo = new ProcessStartInfo
+            {
+                WorkingDirectory = workingDirectory,
+                FileName = protoFile,
+                CreateNoWindow = true
+            };
             return procStartInfo;
         }
     }

@@ -24,7 +24,7 @@ namespace Protobuf2Fiddler
 
         protected override void UpdateView(Session oS)
         {
-            var msgMap = ProtobufHelper.ConvertToMsgMap(Session.oRequest.headers.RequestPath, false, body);
+            var msgMap = ProtobufHelper.Decode(Session.oRequest.headers.RequestPath, false, body);
             UpdateView(msgMap);
         }
 

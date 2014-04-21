@@ -39,7 +39,7 @@ namespace ProtobufTest
                 byte[] buffer = new byte[strem.Length];
                 strem.Read(buffer, 0, (int)strem.Length);
                 //Console.Write(ProtoTransformer.DecodeRaw(buffer));
-                var desc = ProtoTransformer.LoadFilesAsFileDescription(new List<string>() { @"E:\workspaces\LCS\frsPage\frsPageRes.proto" });
+                //var desc = ProtoTransformer.LoadFilesAsFileDescription(new List<string>() { @"E:\workspaces\LCS\frsPage\frsPageRes.proto" });
                 //foreach (var proto in desc.file)
                 //{
                 //    foreach (var message in proto.message_type)
@@ -47,12 +47,6 @@ namespace ProtobufTest
                 //        Console.WriteLine(message.name);
                 //    }
                 //}
-                var messages = desc.file.SelectMany(f => f.message_type.Select(p => string.Format("{0}.{1}", f.package, p.name)));
-                foreach (var message in messages)
-                {
-                    Console.WriteLine(message);
-                }
-                Console.Write(ProtoTransformer.DecodeWithProtoFile(buffer, @"E:\workspaces\LCS\frsPage\frsPageRes.proto", "tbclient.FrsPage.FrsPageResIdl"));
             }
             Console.ReadKey(true);
         }

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Documents;
 using Fiddler;
 using System.Windows.Forms;
 
@@ -9,14 +12,68 @@ namespace Protobuf2Fiddler
     {
         readonly ProtobufView _view;
 
+        private static List<ProtobufView> Views = new List<ProtobufView>();
+
         public ProtobufInspector()
+            : this(true)
         {
-            _view = new ProtobufView(true);
         }
 
         public ProtobufInspector(bool isReq = true)
         {
             _view = new ProtobufView(isReq);
+            Views.Add(_view);
+            ProtobufHelper.LoadDefault();
+            _view.UpdateProtoDirectory(ProtobufHelper.ProtocolMap.ProtoDirectory);
+            _view.UpdateMessageTypes(ProtobufHelper.ProtoTypes);
+            _view.ProtoDirectoryChanged += ProtoDirectoryChanged;
+            _view.ProtoMapChanged += ProtoMapChanged;
+        }
+
+        private void ProtoMapChanged(object sender, ProtoMapChangeArgs protoMapChangeArgs)
+        {
+            var findItem =
+                ProtobufHelper.ProtoItems.FirstOrDefault(protoItem => protoItem.Value.Contains(protoMapChangeArgs.MessageTyp));
+            if (findItem.Value == null)
+            {
+                return;
+            }
+            ProtocolItem protocolItem = new ProtocolItem()
+            {
+                ProtoFile = findItem.Key,
+                MessageType = protoMapChangeArgs.MessageTyp
+            };
+
+            var item = ProtobufHelper.ProtocolMap.Maps.FirstOrDefault(i => i.URL.Equals(protoMapChangeArgs.URL));
+            if (item == null)
+            {
+                item = new MapItem()
+                {
+                    URL = protoMapChangeArgs.URL
+                };
+            }
+            if (protoMapChangeArgs.IsReq)
+            {
+                item.Request = protocolItem;
+            }
+            else
+            {
+                item.Response = protocolItem;
+            }
+            ProtobufHelper.ProtocolMap.Maps.Add(item);
+            ProtobufHelper.SaveMap();
+        }
+
+        private void ProtoDirectoryChanged(object sender, ProtoDirectoryChangeArgs protoDirectoryChangeArgs)
+        {
+            if (ProtobufHelper.LoadDirectory(protoDirectoryChangeArgs.Directory))
+            {
+                foreach (var view in Views)
+                {
+                    view.UpdateProtoDirectory(protoDirectoryChangeArgs.Directory);
+                    view.UpdateMessageTypes(ProtobufHelper.ProtoTypes);
+                }
+            }
         }
 
         public override void AddToTab(TabPage o)
@@ -39,11 +96,6 @@ namespace Protobuf2Fiddler
                 if (IsBaiduPacket())
                 {
                     UpdateView(oS);
-                }
-                else
-                {
-
-                    _view.UpdateView(null);
                 }
             }
             catch (Exception ex)
@@ -103,9 +155,9 @@ namespace Protobuf2Fiddler
             return _headers != null && _headers.Exists("x_bd_data_type");
         }
 
-        internal void UpdateView(ProtobufMsg msgMap)
+        internal void UpdateView(string jsonData)
         {
-            _view.UpdateView(msgMap);
+            _view.UpdateView(jsonData);
         }
     }
 }
