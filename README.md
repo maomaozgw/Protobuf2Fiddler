@@ -1,9 +1,10 @@
-#Protobuf to fiddler
+# Protobuf to fiddler
 一个基于Fiddler的Proto部分解包工具
-##开发环境
+## 开发环境
+
 需求： .Net Framework 4 、Visual Studio 2010 +
 
-##项目说明
+## 项目说明
 
 * [Protobuf-net](https://code.google.com/p/protobuf-net/):一个基于.Net的Protobuf转换工具，用于Protobuf 的序列化和反序列化。在本项目中的用途是用于解析Proto文件，生成Proto文件中的Message的列表
 
@@ -12,7 +13,7 @@
 
 * Protobuf2Fiddler:Fiddler的扩展，继承了Inspectors2、IRequestInspector和IResponseInspector，支持Protobuf的解包并且在Fiddler中展示 
 
-##使用说明
+## 使用说明
 1. 下载安装Fiddler2 for .Net Framework4
 2. 将项目使用Visual Studio 编译后，Protobuf2Fiddler的生成文件放置到 `Documents\Fiddler2\Inspectors`文件夹或者`Program Files\Fiddler2\Inspectors` 32bit系统 `Program Files (x86)\Fiddler2\Inspectors` 64bit系统
 3. 启动Fiddler，选择一个Session，在Inspectors下的Protobuf中首先选择一个放置Protos的文件夹(如果Proto文件中有引用的Proto文件，请放在一个文件夹)
