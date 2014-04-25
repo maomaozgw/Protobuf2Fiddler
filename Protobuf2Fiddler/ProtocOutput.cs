@@ -26,7 +26,7 @@ namespace Protobuf2Fiddler
             {
                 if (data[index].StartsWith(nextPrefix))
                 {
-                    preItem.Children = ProcessChildren(data, level + 1, ref index);
+                    if (preItem != null) preItem.Children = ProcessChildren(data, level + 1, ref index);
                 }
                 else if (data[index].StartsWith(prefix))
                 {

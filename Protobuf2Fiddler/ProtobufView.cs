@@ -34,14 +34,12 @@ namespace Protobuf2Fiddler
 
         public void UpdateSelectMsgType()
         {
-            var item = ProtobufHelper.ProtocolMap.Maps.FirstOrDefault(
-                m => m.URL.Equals(_session.oRequest.headers.RequestPath, StringComparison.CurrentCultureIgnoreCase));
+            if (_session == null) return;
+            var item = ProtobufHelper.FindItem(_session.oRequest.headers.RequestPath, _isReqWindow);
             if (item == null) return;
-            var protoItem = _isReqWindow ? item.Request : item.Response;
-            if (protoItem == null) return;
-            if (cmbMsgType.Items.Contains(protoItem.MessageType))
+            if (cmbMsgType.Items.Contains(item.MessageType))
             {
-                cmbMsgType.SelectedItem = protoItem.MessageType;
+                cmbMsgType.SelectedItem = item.MessageType;
             }
         }
 

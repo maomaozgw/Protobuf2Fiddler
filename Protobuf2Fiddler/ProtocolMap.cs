@@ -39,9 +39,9 @@ namespace Protobuf2Fiddler
 
         public bool Equals(ProtocolItem other)
         {
-            return ReferenceEquals(this, other) ||
+            return other != null && (ReferenceEquals(this, other) ||
                    ProtoFile.Equals(other.ProtoFile, StringComparison.CurrentCultureIgnoreCase) &&
-                   MessageType.Equals(other.MessageType, StringComparison.CurrentCultureIgnoreCase);
+                   MessageType.Equals(other.MessageType, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

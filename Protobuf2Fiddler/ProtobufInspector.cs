@@ -24,7 +24,7 @@ namespace Protobuf2Fiddler
             _view = new ProtobufView(isReq);
             Views.Add(_view);
             ProtobufHelper.LoadDefault();
-            _view.UpdateProtoDirectory(ProtobufHelper.ProtocolMap.ProtoDirectory);
+            _view.UpdateProtoDirectory(ProtobufHelper.ProtoDirectory);
             _view.UpdateMessageTypes(ProtobufHelper.ProtoTypes);
             _view.ProtoDirectoryChanged += ProtoDirectoryChanged;
             _view.ProtoMapChanged += ProtoMapChanged;
@@ -44,30 +44,7 @@ namespace Protobuf2Fiddler
                 MessageType = protoMapChangeArgs.MessageTyp
             };
 
-            var item = ProtobufHelper.ProtocolMap.Maps.FirstOrDefault(i => i.URL.Equals(protoMapChangeArgs.URL, StringComparison.CurrentCultureIgnoreCase)) ??
-                       new MapItem() { URL = protoMapChangeArgs.URL };
-            if (protoMapChangeArgs.IsReq)
-            {
-                if (item.Request.Equals(protocolItem))
-                {
-                    return;
-                }
-                item.Request = protocolItem;
-            }
-            else
-            {
-                if (item.Response.Equals(protocolItem))
-                {
-                    return;
-                }
-                item.Response = protocolItem;
-            }
-            if (!ProtobufHelper.ProtocolMap.Maps.Contains(item))
-            {
-                ProtobufHelper.ProtocolMap.Maps.Add(item);
-            }
-
-            ProtobufHelper.SaveMap();
+            ProtobufHelper.UpdateItem(protocolItem, protoMapChangeArgs.URL, protoMapChangeArgs.IsReq);
         }
 
         private void ProtoDirectoryChanged(object sender, ProtoDirectoryChangeArgs protoDirectoryChangeArgs)

@@ -134,11 +134,15 @@ namespace ProtoBuf.CodeGenerator
             Process proc = Process.Start(procStartInfo);
 
             // proc.StandardInput.BaseStream.Write(protobufBytes, 0, protobufBytes.Length);
-            BinaryWriter binaryWriter = new BinaryWriter(proc.StandardInput.BaseStream);
-            binaryWriter.Write(data);
-            binaryWriter.Flush();
-            binaryWriter.Close();
-            retval = proc.StandardOutput.ReadToEnd();
+            if (proc != null)
+            {
+                BinaryWriter binaryWriter = new BinaryWriter(proc.StandardInput.BaseStream);
+                binaryWriter.Write(data);
+                binaryWriter.Flush();
+                binaryWriter.Close();
+                retval = proc.StandardOutput.ReadToEnd();
+            }
+            
 
             return retval;
         }
@@ -156,11 +160,15 @@ namespace ProtoBuf.CodeGenerator
             System.Diagnostics.Process proc = System.Diagnostics.Process.Start(procStartInfo);
             Debug.WriteLine(procStartInfo.Arguments);
             // proc.StandardInput.BaseStream.Write(protobufBytes, 0, protobufBytes.Length);
-            BinaryWriter binaryWriter = new BinaryWriter(proc.StandardInput.BaseStream);
-            binaryWriter.Write(data);
-            binaryWriter.Flush();
-            binaryWriter.Close();
-            retval = proc.StandardOutput.ReadToEnd();
+            if (proc != null)
+            {
+                BinaryWriter binaryWriter = new BinaryWriter(proc.StandardInput.BaseStream);
+                binaryWriter.Write(data);
+                binaryWriter.Flush();
+                binaryWriter.Close();
+                retval = proc.StandardOutput.ReadToEnd();
+            }
+            
 
             return retval;
         }
@@ -180,30 +188,33 @@ namespace ProtoBuf.CodeGenerator
             // write the decoded protobuf string to protoc for it to comiple into protobuf binary format.
             //
             System.Diagnostics.Process proc = System.Diagnostics.Process.Start(procStartInfo);
-            StreamWriter streamWriter = new StreamWriter(proc.StandardInput.BaseStream);
-            streamWriter.Write(strProtobuf);
-            streamWriter.Flush();
-            streamWriter.Close();
+            if (proc != null)
+            {
+                StreamWriter streamWriter = new StreamWriter(proc.StandardInput.BaseStream);
+                streamWriter.Write(strProtobuf);
+                streamWriter.Flush();
+                streamWriter.Close(); BinaryReader binaryReader = new BinaryReader(proc.StandardOutput.BaseStream);
+                byte[] buf = new byte[4096];
+                while (true)
+                {
+                    int protoBufBytesRead = binaryReader.Read(buf, 0, 4096);
+
+                    if (protoBufBytesRead > 0)
+                    {
+                        Array.Resize(ref retval, retval.Length + protoBufBytesRead);
+                        Array.Copy(buf, 0, retval, retval.Length - protoBufBytesRead, protoBufBytesRead);
+
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
 
             // Now, read off it's standard output for the binary stream.
 
-            BinaryReader binaryReader = new BinaryReader(proc.StandardOutput.BaseStream);
-            byte[] buf = new byte[4096];
-            while (true)
-            {
-                int protoBufBytesRead = binaryReader.Read(buf, 0, 4096);
-
-                if (protoBufBytesRead > 0)
-                {
-                    Array.Resize(ref retval, retval.Length + protoBufBytesRead);
-                    Array.Copy(buf, 0, retval, retval.Length - protoBufBytesRead, protoBufBytesRead);
-
-                }
-                else
-                {
-                    break;
-                }
-            }
+           
             return retval;
         }
 

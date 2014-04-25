@@ -75,7 +75,7 @@ namespace ProtoBuf.CodeGenerator
                 long len = 0;
                 int bytesRead;
                 byte[] buffer = new byte[4096];
-                while ((bytesRead = resStream.Read(buffer, 0, buffer.Length)) > 0)
+                while (resStream != null && (bytesRead = resStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     outFile.Write(buffer, 0, bytesRead);
                     len += bytesRead;

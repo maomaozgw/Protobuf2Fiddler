@@ -43,13 +43,16 @@ namespace Protobuf2Fiddler
             }
             if (!Utilities.IsNullOrEmpty(oS.RequestBody))
             {
-                string boundary = Utilities.GetCommaTokenValue(_headers["Content-Type"], "boundary");
-                if (!string.IsNullOrWhiteSpace(boundary))
+                if (_headers != null)
                 {
-                    //var binData = GetRequestData(bodyString, boundary);
-                    var binData = GetBodyData(oS.RequestBody, boundary);
-                    var protocData = ProtobufHelper.Decode(oS.oRequest.headers.RequestPath, true, binData);
-                    UpdateView(protocData);
+                    string boundary = Utilities.GetCommaTokenValue(_headers["Content-Type"], "boundary");
+                    if (!string.IsNullOrWhiteSpace(boundary))
+                    {
+                        //var binData = GetRequestData(bodyString, boundary);
+                        var binData = GetBodyData(oS.RequestBody, boundary);
+                        var protocData = ProtobufHelper.Decode(oS.oRequest.headers.RequestPath, true, binData);
+                        UpdateView(protocData);
+                    }
                 }
             }
         }

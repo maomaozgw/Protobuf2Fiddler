@@ -56,21 +56,18 @@ namespace Protobuf2Fiddler
 
         public static string Decode(string url, bool isReq, byte[] data)
         {
-            var map = ProtocolMap.Maps.FirstOrDefault(item => item.URL.Equals(url));
+            if (data == null || data.Length == 0) return string.Empty;
+            var protoItem = FindItem(url, isReq);
             var retVal = string.Empty;
-            if (map != null)
+            if (protoItem != null)
             {
-                var protoItem = isReq ? map.Request : map.Response;
-                if (protoItem != null)
+                try
                 {
-                    try
-                    {
-                        retVal = ProtoTransformer.DecodeWithProtoFile(data, protoItem.ProtoFile, protoItem.MessageType);
-                    }
-                    catch
-                    {
-                        retVal = string.Empty;
-                    }
+                    retVal = ProtoTransformer.DecodeWithProtoFile(data, protoItem.ProtoFile, protoItem.MessageType);
+                }
+                catch
+                {
+                    retVal = string.Empty;
                 }
             }
             if (string.IsNullOrEmpty(retVal))
@@ -82,7 +79,7 @@ namespace Protobuf2Fiddler
 
         private static ProtocolMap _protocolMap = null;
 
-        public static ProtocolMap ProtocolMap
+        private static ProtocolMap ProtocolMap
         {
             get
             {
@@ -92,6 +89,11 @@ namespace Protobuf2Fiddler
                 }
                 return _protocolMap;
             }
+        }
+
+        public static string ProtoDirectory
+        {
+            get { return ProtocolMap.ProtoDirectory; }
         }
 
         const string MapFile = "protocolmap.xml";
@@ -108,7 +110,21 @@ namespace Protobuf2Fiddler
                 using (XmlReader reader = XmlReader.Create(MapFile))
                 {
                     _protocolMap = serializer.Deserialize(reader) as ProtocolMap;
+
+                    if (_protocolMap != null)
+                    {
+                        var findItems = _protocolMap.Maps.Where(item => string.IsNullOrWhiteSpace(item.URL)).ToList();
+                        if (findItems.Any())
+                        {
+                            foreach (var item in findItems)
+                            {
+                                _protocolMap.Maps.Remove(item);
+                            }
+
+                        }
+                    }
                 }
+
             }
             catch
             {
@@ -125,10 +141,10 @@ namespace Protobuf2Fiddler
                     Maps = new List<MapItem>()
                 };
             }
-
+            SaveMap();
         }
 
-        public static void SaveMap()
+        private static void SaveMap()
         {
             string oldPath = Environment.CurrentDirectory;
             if (!oldPath.Equals(Assembly.GetExecutingAssembly().Location))
@@ -151,6 +167,42 @@ namespace Protobuf2Fiddler
             {
                 Environment.CurrentDirectory = oldPath;
             }
+        }
+
+        public static ProtocolItem FindItem(string path, bool isReq)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return null;
+            var retVal = ProtocolMap.Maps.FirstOrDefault(item => path.Equals(item.URL, StringComparison.CurrentCultureIgnoreCase));
+            return retVal == null ? null : (isReq ? retVal.Request : retVal.Response);
+        }
+
+        public static void UpdateItem(ProtocolItem item, string path, bool isReq)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return;
+            if (item == null) return;
+            var mapItem = ProtocolMap.Maps.FirstOrDefault(i => path.Equals(i.URL, StringComparison.CurrentCultureIgnoreCase)) ?? new MapItem() { URL = path };
+            if (isReq)
+            {
+                if (item.Equals(mapItem.Request))
+                {
+                    return;
+                }
+                mapItem.Request = item;
+            }
+            else
+            {
+                if (item.Equals(mapItem.Response))
+                {
+                    return;
+                }
+                mapItem.Response = item;
+            }
+            if (!ProtocolMap.Maps.Contains(mapItem))
+            {
+                ProtocolMap.Maps.Add(mapItem);
+            }
+
+            SaveMap();
         }
     }
 }
