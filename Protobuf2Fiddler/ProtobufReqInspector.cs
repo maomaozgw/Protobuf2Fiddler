@@ -44,14 +44,33 @@ namespace Protobuf2Fiddler
             if (!Utilities.IsNullOrEmpty(oS.RequestBody))
             {
                 string boundary = Utilities.GetCommaTokenValue(_headers["Content-Type"], "boundary");
-                string bodyString = _encoding.GetString(oS.RequestBody).Trim();
-                if (!string.IsNullOrWhiteSpace(boundary) && !string.IsNullOrWhiteSpace(bodyString))
+                if (!string.IsNullOrWhiteSpace(boundary))
                 {
-                    var binData = GetRequestData(bodyString, boundary);
+                    //var binData = GetRequestData(bodyString, boundary);
+                    var binData = GetBodyData(oS.RequestBody, boundary);
                     var protocData = ProtobufHelper.Decode(oS.oRequest.headers.RequestPath, true, binData);
                     UpdateView(protocData);
                 }
             }
+        }
+
+        private byte[] GetBodyData(byte[] data, string boundary)
+        {
+            var binNewLine = _encoding.GetBytes("\r\n");
+            var binBoundary = _encoding.GetBytes(boundary);
+            var indexs =
+                data.Select((t, index) => new { t, index })
+                    .Where(t => data.Skip(t.index).Take(binBoundary.Length).SequenceEqual(binBoundary)).ToList();
+            if (indexs.Count <= 3) return new byte[] { };
+            var firstIndex = indexs.ElementAt(indexs.Count - 2).index;
+            indexs =
+                data.Skip(firstIndex)
+                    .Select((t, index) => new { t, index })
+                    .Where(t => data.Skip(t.index + firstIndex).Take(binNewLine.Length).SequenceEqual(binNewLine)).ToList();
+            if (indexs.Count <= 3) return new byte[] { };
+            var dataFirstIndex = firstIndex + indexs.ElementAt(2).index + binNewLine.Length;
+            var lastIndex = firstIndex + indexs.ElementAt(indexs.Count - 2).index;
+            return data.Skip(dataFirstIndex).Take(lastIndex - dataFirstIndex).ToArray();
         }
 
         private byte[] GetRequestData(string bodyString, string boundary)

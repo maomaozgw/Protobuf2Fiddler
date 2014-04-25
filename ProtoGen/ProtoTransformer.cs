@@ -165,6 +165,48 @@ namespace ProtoBuf.CodeGenerator
             return retval;
         }
 
+        public static byte[] EncodeWithProto(string strProtobuf, string messageType, string protoFile)
+        {
+            byte[] retval = new byte[0];
+
+            ProcessStartInfo procStartInfo = GetProtocStartInfo();
+            procStartInfo.Arguments = string.Format(@"--encode={0} --proto_path={1} {2}", messageType, Path.GetDirectoryName(protoFile), protoFile);
+            procStartInfo.RedirectStandardInput = true;
+            procStartInfo.RedirectStandardError = true;
+            procStartInfo.RedirectStandardOutput = true;
+            procStartInfo.UseShellExecute = false;
+
+            //
+            // write the decoded protobuf string to protoc for it to comiple into protobuf binary format.
+            //
+            System.Diagnostics.Process proc = System.Diagnostics.Process.Start(procStartInfo);
+            StreamWriter streamWriter = new StreamWriter(proc.StandardInput.BaseStream);
+            streamWriter.Write(strProtobuf);
+            streamWriter.Flush();
+            streamWriter.Close();
+
+            // Now, read off it's standard output for the binary stream.
+
+            BinaryReader binaryReader = new BinaryReader(proc.StandardOutput.BaseStream);
+            byte[] buf = new byte[4096];
+            while (true)
+            {
+                int protoBufBytesRead = binaryReader.Read(buf, 0, 4096);
+
+                if (protoBufBytesRead > 0)
+                {
+                    Array.Resize(ref retval, retval.Length + protoBufBytesRead);
+                    Array.Copy(buf, 0, retval, retval.Length - protoBufBytesRead, protoBufBytesRead);
+
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return retval;
+        }
+
         private static ProcessStartInfo GetProtocStartInfo()
         {
             string workingDirectory;

@@ -29,12 +29,19 @@ namespace Protobuf2Fiddler
     }
 
     [Serializable]
-    public class ProtocolItem
+    public class ProtocolItem : IEquatable<ProtocolItem>
     {
         [XmlElement]
         public string ProtoFile { get; set; }
 
         [XmlElement]
         public string MessageType { get; set; }
+
+        public bool Equals(ProtocolItem other)
+        {
+            return ReferenceEquals(this, other) ||
+                   ProtoFile.Equals(other.ProtoFile, StringComparison.CurrentCultureIgnoreCase) &&
+                   MessageType.Equals(other.MessageType, StringComparison.CurrentCultureIgnoreCase);
+        }
     }
 }

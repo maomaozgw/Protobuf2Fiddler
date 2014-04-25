@@ -33,6 +33,7 @@ namespace ProtobufTest
 
         static void Main(string[] args)
         {
+            MakeDll();
             //CreateShortRequest(@"frsreq.bin");
             using (FileStream strem = File.OpenRead("rsp.bin"))
             {
@@ -138,7 +139,7 @@ namespace ProtobufTest
         static void MakeDll()
         {
             List<string> files = new List<string>() { @"E:\workspaces\LCS\FRSPAGE\frsPageReq.proto", @"E:\workspaces\LCS\FRSPAGE\frsPageRes.proto", @"E:\workspaces\LCS\FRSPAGE\client.proto" };
-            ProtoTransformer.Transform(files, "frs.dll");
+            ProtoTransformer.Transform(files, "frs3.dll");
             Console.ReadKey();
         }
     }

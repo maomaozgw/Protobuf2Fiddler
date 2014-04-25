@@ -22,15 +22,20 @@ namespace Protobuf2Fiddler
         private Button btnBrowse;
         private System.Windows.Forms.Integration.ElementHost elementHost1;
         private JViewer jViewer1;
-        private TextBox textBox1;
+        private Button btnReload;
 
         private readonly bool _isReqWindow;
 
         public void SetSession(Session session)
         {
             _session = session;
+            UpdateSelectMsgType();
+        }
+
+        public void UpdateSelectMsgType()
+        {
             var item = ProtobufHelper.ProtocolMap.Maps.FirstOrDefault(
-                m => m.URL.Equals(session.oRequest.headers.RequestPath, StringComparison.CurrentCultureIgnoreCase));
+                m => m.URL.Equals(_session.oRequest.headers.RequestPath, StringComparison.CurrentCultureIgnoreCase));
             if (item == null) return;
             var protoItem = _isReqWindow ? item.Request : item.Response;
             if (protoItem == null) return;
@@ -49,6 +54,7 @@ namespace Protobuf2Fiddler
         public void CleanView()
         {
             jViewer1.Clean();
+            this.cmbMsgType.SelectedItem = null;
         }
 
         private void InitializeComponent()
@@ -61,7 +67,7 @@ namespace Protobuf2Fiddler
             this.label1 = new System.Windows.Forms.Label();
             this.elementHost1 = new System.Windows.Forms.Integration.ElementHost();
             this.jViewer1 = new Protobuf2Fiddler.JViewer();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btnReload = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -78,7 +84,7 @@ namespace Protobuf2Fiddler
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.textBox1);
+            this.splitContainer1.Panel1.Controls.Add(this.btnReload);
             this.splitContainer1.Panel1.Controls.Add(this.btnBrowse);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.cmbMsgType);
@@ -149,13 +155,15 @@ namespace Protobuf2Fiddler
             this.elementHost1.Text = "elementHost1";
             this.elementHost1.Child = this.jViewer1;
             // 
-            // textBox1
+            // btnReload
             // 
-            this.textBox1.Location = new System.Drawing.Point(356, 35);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 21);
-            this.textBox1.TabIndex = 5;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.btnReload.Location = new System.Drawing.Point(534, 6);
+            this.btnReload.Name = "btnReload";
+            this.btnReload.Size = new System.Drawing.Size(75, 23);
+            this.btnReload.TabIndex = 6;
+            this.btnReload.Text = "Reload";
+            this.btnReload.UseVisualStyleBackColor = true;
+            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
             // 
             // ProtobufView
             // 
@@ -194,6 +202,8 @@ namespace Protobuf2Fiddler
         {
             using (FolderBrowserDialog dialog = new FolderBrowserDialog())
             {
+                dialog.ShowNewFolderButton = false;
+
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     if (ProtoDirectoryChanged != null)
@@ -213,9 +223,12 @@ namespace Protobuf2Fiddler
             }
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void btnReload_Click(object sender, EventArgs e)
         {
-            this.jViewer1.Search(textBox1.Text);
+            if (ProtoDirectoryChanged != null)
+            {
+                ProtoDirectoryChanged(this, new ProtoDirectoryChangeArgs(txtDirectory.Text));
+            }
         }
     }
 }

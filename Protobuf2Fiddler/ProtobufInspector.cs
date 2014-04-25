@@ -44,23 +44,29 @@ namespace Protobuf2Fiddler
                 MessageType = protoMapChangeArgs.MessageTyp
             };
 
-            var item = ProtobufHelper.ProtocolMap.Maps.FirstOrDefault(i => i.URL.Equals(protoMapChangeArgs.URL));
-            if (item == null)
-            {
-                item = new MapItem()
-                {
-                    URL = protoMapChangeArgs.URL
-                };
-            }
+            var item = ProtobufHelper.ProtocolMap.Maps.FirstOrDefault(i => i.URL.Equals(protoMapChangeArgs.URL, StringComparison.CurrentCultureIgnoreCase)) ??
+                       new MapItem() { URL = protoMapChangeArgs.URL };
             if (protoMapChangeArgs.IsReq)
             {
+                if (item.Request.Equals(protocolItem))
+                {
+                    return;
+                }
                 item.Request = protocolItem;
             }
             else
             {
+                if (item.Response.Equals(protocolItem))
+                {
+                    return;
+                }
                 item.Response = protocolItem;
             }
-            ProtobufHelper.ProtocolMap.Maps.Add(item);
+            if (!ProtobufHelper.ProtocolMap.Maps.Contains(item))
+            {
+                ProtobufHelper.ProtocolMap.Maps.Add(item);
+            }
+
             ProtobufHelper.SaveMap();
         }
 
@@ -72,6 +78,7 @@ namespace Protobuf2Fiddler
                 {
                     view.UpdateProtoDirectory(protoDirectoryChangeArgs.Directory);
                     view.UpdateMessageTypes(ProtobufHelper.ProtoTypes);
+                    view.UpdateSelectMsgType();
                 }
             }
         }
