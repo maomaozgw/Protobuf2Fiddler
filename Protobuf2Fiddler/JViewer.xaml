@@ -10,23 +10,12 @@
         <TreeView Name="treeView" >
 
             <TreeView.ItemTemplate>
-
-                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-
+                <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-
                         <!-- 显示Header属性 -->
-
-                        <TextBlock Text="{Binding ShowValue}"/>
-
-                        <!-- 显示JToken的Type属性 -->
-
-                        <TextBlock Text="{Binding Token.Type}" Margin="10 0 0 0" Foreground="Gray"/>
-
+                        <TextBlock Text="{Binding Header}"/>
                     </StackPanel>
-
-                </HierarchicalDataTemplate>
-
+                </DataTemplate>
             </TreeView.ItemTemplate>
 
         </TreeView>

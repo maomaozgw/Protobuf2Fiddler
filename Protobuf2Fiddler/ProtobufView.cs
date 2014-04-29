@@ -23,6 +23,7 @@ namespace Protobuf2Fiddler
         private System.Windows.Forms.Integration.ElementHost elementHost1;
         private JViewer jViewer1;
         private Button btnReload;
+        private TextBox txtSearchText;
 
         private readonly bool _isReqWindow;
 
@@ -58,6 +59,8 @@ namespace Protobuf2Fiddler
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.txtSearchText = new System.Windows.Forms.TextBox();
+            this.btnReload = new System.Windows.Forms.Button();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.cmbMsgType = new System.Windows.Forms.ComboBox();
@@ -65,7 +68,6 @@ namespace Protobuf2Fiddler
             this.label1 = new System.Windows.Forms.Label();
             this.elementHost1 = new System.Windows.Forms.Integration.ElementHost();
             this.jViewer1 = new Protobuf2Fiddler.JViewer();
-            this.btnReload = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -82,6 +84,7 @@ namespace Protobuf2Fiddler
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.txtSearchText);
             this.splitContainer1.Panel1.Controls.Add(this.btnReload);
             this.splitContainer1.Panel1.Controls.Add(this.btnBrowse);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
@@ -96,6 +99,24 @@ namespace Protobuf2Fiddler
             this.splitContainer1.Size = new System.Drawing.Size(995, 709);
             this.splitContainer1.SplitterDistance = 56;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // txtSearchText
+            // 
+            this.txtSearchText.Location = new System.Drawing.Point(370, 33);
+            this.txtSearchText.Name = "txtSearchText";
+            this.txtSearchText.Size = new System.Drawing.Size(158, 21);
+            this.txtSearchText.TabIndex = 7;
+            this.txtSearchText.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtSearchText_KeyDown);
+            // 
+            // btnReload
+            // 
+            this.btnReload.Location = new System.Drawing.Point(534, 6);
+            this.btnReload.Name = "btnReload";
+            this.btnReload.Size = new System.Drawing.Size(75, 23);
+            this.btnReload.TabIndex = 6;
+            this.btnReload.Text = "Reload";
+            this.btnReload.UseVisualStyleBackColor = true;
+            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
             // 
             // btnBrowse
             // 
@@ -152,16 +173,6 @@ namespace Protobuf2Fiddler
             this.elementHost1.TabIndex = 0;
             this.elementHost1.Text = "elementHost1";
             this.elementHost1.Child = this.jViewer1;
-            // 
-            // btnReload
-            // 
-            this.btnReload.Location = new System.Drawing.Point(534, 6);
-            this.btnReload.Name = "btnReload";
-            this.btnReload.Size = new System.Drawing.Size(75, 23);
-            this.btnReload.TabIndex = 6;
-            this.btnReload.Text = "Reload";
-            this.btnReload.UseVisualStyleBackColor = true;
-            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
             // 
             // ProtobufView
             // 
@@ -226,6 +237,14 @@ namespace Protobuf2Fiddler
             if (ProtoDirectoryChanged != null)
             {
                 ProtoDirectoryChanged(this, new ProtoDirectoryChangeArgs(txtDirectory.Text));
+            }
+        }
+
+        private void txtSearchText_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                jViewer1.Search(txtSearchText.Text);
             }
         }
     }

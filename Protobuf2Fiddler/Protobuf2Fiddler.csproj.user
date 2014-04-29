@@ -5,4 +5,11 @@
     <StartProgram>C:\Program Files %28x86%29\Fiddler2\Fiddler.exe</StartProgram>
     <StartWorkingDirectory>C:\Program Files %28x86%29\Fiddler2\</StartWorkingDirectory>
   </PropertyGroup>
+  <PropertyGroup>
+    <ProjectView>ShowAllFiles</ProjectView>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Program Files %28x86%29\Fiddler2\Fiddler.exe</StartProgram>
+  </PropertyGroup>
 </Project>

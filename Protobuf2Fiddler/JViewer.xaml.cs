@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -7,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -38,11 +40,33 @@ namespace Protobuf2Fiddler
 
         internal void Search(string p)
         {
-            //var findItem = treeView.ItemsSource.Cast<ProtocOutput>().FirstOrDefault(item => item.ShowValue.Contains(p));
-            //if (findItem != null)
-            //{
-            //    findItem.IsExpanded = true;
-            //}
+            var findItem = ToList(treeView.ItemsSource.Cast<TreeViewItem>())
+                    .FirstOrDefault(item => item.Header.ToString().ToLower().Contains(p.ToLower())); ;
+            if (findItem == null) return;
+            var parent = findItem.Parent as TreeViewItem;
+
+            while (parent != null)
+            {
+                parent.IsExpanded = true;
+                parent = parent.Parent as TreeViewItem;
+            }
+
+            findItem.IsSelected = true;
+            findItem.Focus();
+        }
+
+        private static IEnumerable<TreeViewItem> ToList(IEnumerable<TreeViewItem> source)
+        {
+            Stack<TreeViewItem> items = new Stack<TreeViewItem>(source);
+            while (items.Any())
+            {
+                var item = items.Pop();
+                yield return item;
+                foreach (var child in item.Items.Cast<TreeViewItem>())
+                {
+                    items.Push(child);
+                }
+            }
         }
     }
 
