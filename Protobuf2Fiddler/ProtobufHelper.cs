@@ -34,6 +34,7 @@ namespace Protobuf2Fiddler
                 }
             }
             ProtocolMap.ProtoDirectory = directory;
+            SaveMap();
             _protoTypes = null;
             return true;
         }

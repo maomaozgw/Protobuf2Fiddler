@@ -106,6 +106,7 @@ namespace Protobuf2Fiddler
             this.txtSearchText.Name = "txtSearchText";
             this.txtSearchText.Size = new System.Drawing.Size(158, 21);
             this.txtSearchText.TabIndex = 7;
+            this.txtSearchText.Visible = false;
             this.txtSearchText.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtSearchText_KeyDown);
             // 
             // btnReload
