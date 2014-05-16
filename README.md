@@ -4,12 +4,10 @@
 ## 使用说明 ##
 ### 安装 ###
 1. 下载安装 **[Fiddler2 for .Net Framework4](http://www.telerik.com/download/fiddler)**
-
 ![Download Fiddler](http://gitlab.baidu.com/zhaoguowei/documents/raw/master/Protobuf2Fiddler/DownloadFiddler.png)
 2. 下载项目源码或者编译好的压缩包
 
 3. 将编译或者下载后的文件放置到 `Documents\Fiddler2\Inspectors`文件夹或者`Program Files\Fiddler2\Inspectors` 32bit系统 `Program Files (x86)\Fiddler2\Inspectors` 64bit系统
-
 ![UpzipPlugins](http://gitlab.baidu.com/zhaoguowei/documents/raw/master/Protobuf2Fiddler/unzipplugin.png)
 
 *tip:*
@@ -20,17 +18,13 @@
  
 1. 安装完毕插件后启动Fiddler，在Fiddler中选择一个Session
 2. 在右侧的 Inspectors 选项卡中可以看到 **Protobuf** 功能
-
 ![ProtobufTab](http://gitlab.baidu.com/zhaoguowei/documents/raw/master/Protobuf2Fiddler/protobuftab.png)
 3. 点击**Browse** ，选择**Proto**文件的文件夹
-
 ![ChooseFolder](http://gitlab.baidu.com/zhaoguowei/documents/raw/master/Protobuf2Fiddler/chooseproto.png)
 4. 在MessageType 中可以看到文件夹中的Proto文件中定义的Message信息
-2. 在Fiddler中选择一个需要解析的Session，在`Inspectors->Protobuf`中可以看到Raw解的结果
-
+5. 在Fiddler中选择一个需要解析的Session，在`Inspectors->Protobuf`中可以看到Raw解的结果
 ![rawDecode](http://gitlab.baidu.com/zhaoguowei/documents/raw/master/Protobuf2Fiddler/RawDecode.png)
-3. 如果需要Key-Value解析，配置该URL对应的Message Type (如果有嵌套的Message Type，请选择根Message Type)，如果数据与Proto文件匹配即可解析出Key-Value结果。
-
+6. 如果需要Key-Value解析，配置该URL对应的Message Type (如果有嵌套的Message Type，请选择根Message Type)，如果数据与Proto文件匹配即可解析出Key-Value结果。
 ![keyDecode](http://gitlab.baidu.com/zhaoguowei/documents/raw/master/Protobuf2Fiddler/keyDecode.png)
 
 *配置的URL与Message Type的映射会自动保存。*
