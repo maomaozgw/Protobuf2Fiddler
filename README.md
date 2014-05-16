@@ -41,5 +41,4 @@
 * **ProtobufGen:Protobuf .Net**项目中带的模块，用于根据Proto文件生成对应的.Net 代码。本项目被修改，主要增加了直接根据Proto文件生成.Net DLL，可以动态在.Net 语言中加载用于带类型的解包(早期方案)，通过Protoc.exe进行Protobuf文件的Raw解,Key-Value解(现在方案)。已经加入扩展方法，支持根据字符串生成Protobuf。预备增加新方法可以直接根据Json生成Protobuf
 
 
-* **Protobuf2Fiddler:**Fiddler的扩展，继承了Inspectors2、IRequestInspector和IResponseInspector，支持Protobuf的解包并且在Fiddler中展示 
-
+* **Protobuf2Fiddler:**Fiddler的扩展，继承了Inspectors2、IRequestInspector和IResponseInspector，支持Protobuf的解包并且在Fiddler中展示
