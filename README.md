@@ -3,8 +3,8 @@
 
 ## 使用说明 ##
 ### 安装 ###
-1. 下载安装 **[Fiddler2 for .Net Framework4](http://www.telerik.com/download/fiddler)**
-<br /><br />
+下载安装 **[Fiddler2 for .Net Framework4](http://www.telerik.com/download/fiddler)**
+<br />
 <ul><li>![Download Fiddler](http://gitlab.baidu.com/zhaoguowei/documents/raw/master/Protobuf2Fiddler/DownloadFiddler.png)</li><ul>
 <br />
 2. 下载项目源码或者编译好的压缩包
