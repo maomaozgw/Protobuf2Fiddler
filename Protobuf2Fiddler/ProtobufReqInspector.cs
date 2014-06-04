@@ -59,21 +59,33 @@ namespace Protobuf2Fiddler
 
         private byte[] GetBodyData(byte[] data, string boundary)
         {
-            var binNewLine = _encoding.GetBytes("\r\n");
+            var binNewLine = _encoding.GetBytes("\r\n\r\n\n");
             var binBoundary = _encoding.GetBytes(boundary);
             var indexs =
                 data.Select((t, index) => new { t, index })
-                    .Where(t => data.Skip(t.index).Take(binBoundary.Length).SequenceEqual(binBoundary)).ToList();
-            if (indexs.Count <= 3) return new byte[] { };
-            var firstIndex = indexs.ElementAt(indexs.Count - 2).index;
-            indexs =
-                data.Skip(firstIndex)
-                    .Select((t, index) => new { t, index })
-                    .Where(t => data.Skip(t.index + firstIndex).Take(binNewLine.Length).SequenceEqual(binNewLine)).ToList();
-            if (indexs.Count <= 3) return new byte[] { };
-            var dataFirstIndex = firstIndex + indexs.ElementAt(2).index + binNewLine.Length;
-            var lastIndex = firstIndex + indexs.ElementAt(indexs.Count - 2).index;
-            return data.Skip(dataFirstIndex).Take(lastIndex - dataFirstIndex).ToArray();
+                    .Where(t => data.Skip(t.index).Take(binNewLine.Length).SequenceEqual(binNewLine))
+                    .ToList();
+            var firstIndex = indexs.FirstOrDefault().index + binNewLine.Length - 1;
+
+            indexs = data.Select((t, index) => new { t, index })
+                    .Where(t => data.Skip(t.index).Take(binBoundary.Length).SequenceEqual(binBoundary))
+                    .ToList();
+            var lastIndex = indexs.Last().index - 4;
+            return data.Skip(firstIndex).Take(lastIndex - firstIndex).ToArray();
+
+            //var indexs =
+            //    data.Select((t, index) => new { t, index })
+            //        .Where(t => data.Skip(t.index).Take(binBoundary.Length).SequenceEqual(binBoundary)).ToList();
+            //if (indexs.Count <= 3) return new byte[] { };
+            //var firstIndex = indexs.ElementAt(indexs.Count - 2).index;
+            //indexs =
+            //    data.Skip(firstIndex)
+            //        .Select((t, index) => new { t, index })
+            //        .Where(t => data.Skip(t.index + firstIndex).Take(binNewLine.Length).SequenceEqual(binNewLine)).ToList();
+            //if (indexs.Count <= 3) return new byte[] { };
+            //var dataFirstIndex = firstIndex + indexs.ElementAt(2).index + binNewLine.Length;
+            //var lastIndex = firstIndex + indexs.ElementAt(indexs.Count - 2).index;
+            //return data.Skip(dataFirstIndex).Take(lastIndex - dataFirstIndex).ToArray();
         }
 
         private byte[] GetRequestData(string bodyString, string boundary)
